@@ -43,6 +43,8 @@ class PYEngine:
                         pressedkeys.append(event.key)
                 elif event.type == pygame.KEYUP:
                     pressedkeys.remove(event.key)
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    EventHandler.triggerHandler("MouseDownEvent", [pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]])
             self.screen.fill(self.builder.background)
             for go in gameobjects:
                 go.draw()
@@ -95,7 +97,7 @@ class GameObjectManager:
         gameobjects.remove(obj)
 
 
-class Rectange:
+class Rectangle:
     def __init__(self):
         self.size = [50, 50]
         self.position = [0, 0]
@@ -243,11 +245,11 @@ class EventHandler:
                     obj = KeyDownEvent(triggers[0])
                 else:
                     continue
-            # elif handlerclass == "KeyPressedEvent":
-            #     if l[0] == "KeyPressedEvent":
-            #         obj = KeyPressendEvent(triggers[0])
-            #     else:
-            #         continue
+            elif handlerclass == "MouseDownEvent":
+                if l[0] == "MouseDownEvent":
+                    obj = MouseDownEvent(triggers[0], triggers[1])
+                else:
+                    continue
             if type(obj) == "string":
                 continue
             l[1](obj)
@@ -274,6 +276,14 @@ class KeyPressendEvent:
     def getKey(self):
         return self.key
 
+class MouseDownEvent:
+    def __init__(self, pos1, pos2):
+        self.pos1 = pos1
+        self.pos2 = pos2
+
+    def getPosition(self):
+        return [self.pos1, self.pos2]
+
 
 class CollisionManager:
     @staticmethod
@@ -281,3 +291,31 @@ class CollisionManager:
         rect = obj1.draw()
         rect2 = obj2.draw()
         return rect.colliderect(rect2)
+
+    @staticmethod
+    def collidePoint(obj1, point):
+        return obj1.draw().collidepoint(point)
+
+class Sound:
+    def __init__(self, sound):
+        self.sound = pygame.mixer.Sound(sound)
+
+    def play(self):
+        pygame.mixer.Sound.play(self.sound)
+
+class Music:
+    @staticmethod
+    def set(music):
+        pygame.mixer.music.load(music)
+
+    @staticmethod
+    def play(loops):
+        pygame.mixer.music.play(loops)
+
+    @staticmethod
+    def pause():
+        pygame.mixer.music.pause()
+
+    @staticmethod
+    def unpause():
+        pygame.mixer.music.unpause()
